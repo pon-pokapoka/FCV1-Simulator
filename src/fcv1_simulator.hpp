@@ -1,5 +1,6 @@
 #include "box2d/box2d.h"
 #include <cmath>
+#include <memory>
 #include <pybind11/pybind11.h>
 #include <nlohmann/json.hpp>
 #include <pybind11/numpy.h>
@@ -359,13 +360,10 @@ private:
     py::array_t<unsigned int> five_lock_result;
     std::string model_path;
     std::vector<std::vector<StonePosition>> trajectory;
-    py::list step_list;
-    py::list trajectory_list;
     double x_velocity;
     double y_velocity;
     double angular_velocity;
     unsigned int applied_rule;      // 0: five-rock, 1: five-rock + no-tick, 2: mixed doubles
-    SimulatorFCV1 *simulatorFCV1;
     json config;
     int shot_per_team;
     unsigned int team_id;

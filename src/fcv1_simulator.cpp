@@ -661,7 +661,8 @@ std::tuple<py::array_t<double, 3>, py::list> StoneSimulator::simulator(py::array
         throw py::value_error("stone_positions must contain 12 or 16 stones");
     }
 
-    simulatorFCV1 = new SimulatorFCV1(storage);
+    // Owned per call: a raw `new` here leaked a whole Box2D world (~1 MiB) per shot.
+    const std::unique_ptr<SimulatorFCV1> simulatorFCV1 = std::make_unique<SimulatorFCV1>(storage);
     simulatorFCV1->change_shot(this->total_shot);
     simulatorFCV1->set_stones();
     if (applied_rule == 2)
@@ -682,6 +683,8 @@ std::tuple<py::array_t<double, 3>, py::list> StoneSimulator::simulator(py::array
     const size_t stones_per_team_out = (stones_in_input == 12) ? 6 : 8;
     stones_positions = convert_stonedata(simulated_stones, stones_per_team_out);
 
+    // A new list per call: as a member it kept every earlier shot's trajectory.
+    py::list trajectory_list;
     count = 0;
     for (const std::vector<StonePosition> &step_stone_data : trajectory)
     {
